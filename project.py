@@ -28,6 +28,3 @@ def find_dirs(rootdir):
 unzip()
 rootdir = "E:\\Data Structure\\DS_Project\\Main"
 find_dirs(rootdir)
-
-def test():
-    pass
