@@ -2,29 +2,31 @@
 import os
 from zipfile import ZipFile
 
-# unzipping the main zip file
-def unzip():
-    with ZipFile("E:\\Data Structure\\DS_Project\\Main.zip", 'r') as zObject:
 
-        os.mkdir(path="E:/Data Structure/DS_Project/Main") #unzips here
+def unzip(): # unzipping the main zip file
+    with ZipFile("E:\\Data Structure\\DS_Project\\Main.zip", 'r') as zObject:
+        os.mkdir(path="E:/Data Structure/DS_Project/Main")  # unzips here
 
         zObject.extractall(path="E:\\Data Structure\\DS_Project\\Main")
 
-# finding all folders
-def find_dirs(rootdir):
-    for file in os.listdir(rootdir):
-        folder = os.path.join(rootdir, file)
-        if os.path.isdir(folder):
-            #TODO
-            for files in os.listdir(folder):
+
+def find_dirs(root_dir, year_dict): # finding all folders
+    for file in os.listdir(root_dir):  # getting all the files and folders
+        folder = os.path.join(root_dir, file)
+        if os.path.isdir(folder):  # finding the folders
+            # TODO
+            for files in os.listdir(folder):  # getting all the files in the folder
                 old_dir = os.path.join(folder, files)
-                new_dir = os.path.join(rootdir,files)
-                os.rename(old_dir, new_dir)
+                new_dir = os.path.join(root_dir, files)
+                os.rename(old_dir, new_dir)  # changing dir of files
 
-            os.rmdir(folder)
+            os.rmdir(folder)  # deleting the folder
 
-            find_dirs(rootdir)
+            find_dirs(root_dir)
 
-unzip()
-rootdir = "E:\\Data Structure\\DS_Project\\Main"
-find_dirs(rootdir)
+
+if __name__ == '__main__':
+    unzip()
+    root_dir = "E:\\Data Structure\\DS_Project\\Main"
+    year_dict = {}
+    find_dirs(root_dir, year_dict)
