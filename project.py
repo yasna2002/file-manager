@@ -10,6 +10,9 @@ def unzip():
 
         zObject.extractall(path="E:\\Data Structure\\DS_Project\\Main")
 
+def temp():
+    pass
+
 # finding all folders
 def find_dirs(rootdir):
     for file in os.listdir(rootdir):
