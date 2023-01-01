@@ -50,6 +50,24 @@ def file_deletion(root_dir):
         print("File not found!")
 
 
+def file_adder(root_dir):
+    print("name of the file to add: ")
+    name = input()
+    print("date of the file: ")
+    date = input()
+    if date <= 2022:
+        print("format of the file: ")
+        format = input()
+
+        fullName = name + "." + date + "." + format
+
+        open(fullName, "x")
+        path = os.path.join("D:\programs\Github\ds-project-olympians-ii", fullName)
+        destination = os.path.join(root_dir, fullName)
+        os.rename(path, destination)
+    else:
+        print("date invalid!")
+
 
 if __name__ == '__main__':
     unzip()
@@ -57,3 +75,4 @@ if __name__ == '__main__':
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
     file_deletion(root_dir)
+    file_adder(root_dir)
