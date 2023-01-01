@@ -49,6 +49,8 @@ def date_order(root_dir, year_dict):  # sorting files by date
             new_dir = os.path.join(root_dir, year_dict[key][file])
             os.rename(old_dir, new_dir)
     os.rmdir(temp)
+
+
 def file_deletion(root_dir):
     print("name of the file you want to delete: ")
     name = input()
@@ -82,7 +84,6 @@ def file_adder(root_dir):
         os.rename(path, destination)
     else:
         print("date invalid!")
->>>>>>>>> Temporary merge branch 2
 
 
 if __name__ == '__main__':
@@ -90,9 +91,6 @@ if __name__ == '__main__':
     root_dir = "D:\\programs\\Github\\ds-project-olympians-ii\\Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
-<<<<<<<<< Temporary merge branch 1
     date_order(root_dir, year_dict)
-=========
     file_deletion(root_dir)
     file_adder(root_dir)
->>>>>>>>> Temporary merge branch 2
