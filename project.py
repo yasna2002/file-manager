@@ -2,10 +2,15 @@
 import os
 from collections import defaultdict
 from zipfile import ZipFile
+
+
 def unzip():  # unzipping the main zip file
     with ZipFile("D:\\programs\\Github\\ds-project-olympians-ii\\Main.zip", 'r') as zObject:
         os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main")  # unzips here
+
         zObject.extractall(path="D:\\programs\\Github\\ds-project-olympians-ii\\Main")
+
+
 def find_dirs(root_dir, year_dict):  # finding all folders
     for file in os.listdir(root_dir):  # getting all the files and folders
         folder = os.path.join(root_dir, file)
@@ -15,14 +20,17 @@ def find_dirs(root_dir, year_dict):  # finding all folders
                 old_dir = os.path.join(folder, files)
                 new_dir = os.path.join(root_dir, files)
                 os.rename(old_dir, new_dir)  # changing dir of files
+
                 if os.path.isfile(new_dir):  # finding files between files and folders
                     date = os.path.basename(new_dir).split('/')[-1].split('.')[-2]
+
                     if int(date) <= 2022:
                         year_dict[date].append(files)  # creating a dictionary of files by date key
                     else:
                         os.remove(new_dir)  # remove a file with invalid date
             # dict(sorted(year_dict.items()))
             os.rmdir(folder)  # deleting the folder
+
             find_dirs(root_dir, year_dict)
 
 
@@ -41,6 +49,40 @@ def date_order(root_dir, year_dict):  # sorting files by date
             new_dir = os.path.join(root_dir, year_dict[key][file])
             os.rename(old_dir, new_dir)
     os.rmdir(temp)
+def file_deletion(root_dir):
+    print("name of the file you want to delete: ")
+    name = input()
+
+    cond = False  # checks whether the file existed or not.
+    for files in os.listdir(root_dir):
+        if name == os.path.basename(files).split('/')[-1].split('.')[0]:  # checks if the file name matched.
+            direct = os.path.join(root_dir, files)
+            os.remove(direct)
+            cond = True
+    if cond is True:
+        print("File Deleted!")
+    else:
+        print("File not found!")
+
+
+def file_adder(root_dir):
+    print("name of the file to add: ")
+    name = input()
+    print("date of the file: ")
+    date = input()
+    if date <= 2022:
+        print("format of the file: ")
+        format = input()
+
+        fullName = name + "." + date + "." + format
+
+        open(fullName, "x")
+        path = os.path.join("D:\programs\Github\ds-project-olympians-ii", fullName)
+        destination = os.path.join(root_dir, fullName)
+        os.rename(path, destination)
+    else:
+        print("date invalid!")
+>>>>>>>>> Temporary merge branch 2
 
 
 if __name__ == '__main__':
@@ -48,4 +90,9 @@ if __name__ == '__main__':
     root_dir = "D:\\programs\\Github\\ds-project-olympians-ii\\Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
+<<<<<<<<< Temporary merge branch 1
     date_order(root_dir, year_dict)
+=========
+    file_deletion(root_dir)
+    file_adder(root_dir)
+>>>>>>>>> Temporary merge branch 2
