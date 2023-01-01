@@ -35,8 +35,26 @@ def find_dirs(root_dir, year_dict):  # finding all folders
             find_dirs(root_dir, year_dict)
 
 
+def date_order(root_dir, year_dict):  # sorting files by date
+    os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main/folder")  # creating a temp folder
+    temp = "D:/programs/Github/ds-project-olympians-ii/Main/folder"
+    for key in sorted(year_dict.keys()):  # moving sorted files to the temp dir
+        for file in range(len(year_dict[key])):
+            old_dir = os.path.join(root_dir, year_dict[key][file])
+            new_dir = os.path.join(temp, year_dict[key][file])
+            os.rename(old_dir, new_dir)
+
+    for key in sorted(year_dict.keys()):  # moving out sorted files to the main dir
+        for file in range(len(year_dict[key])):
+            old_dir = os.path.join(temp, year_dict[key][file])
+            new_dir = os.path.join(root_dir, year_dict[key][file])
+            os.rename(old_dir, new_dir)
+    os.rmdir(temp)
+
+
 if __name__ == '__main__':
     unzip()
     root_dir = "D:\\programs\\Github\\ds-project-olympians-ii\\Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
+    date_order(root_dir, year_dict)
