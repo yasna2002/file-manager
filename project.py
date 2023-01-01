@@ -28,13 +28,47 @@ def find_dirs(root_dir, year_dict):  # finding all folders
                         year_dict[date].append(files)  # creating a dictionary of files by date key
                     else:
                         os.remove(new_dir)  # remove a file with invalid date
-
             # dict(sorted(year_dict.items()))
             os.rmdir(folder)  # deleting the folder
 
             find_dirs(root_dir, year_dict)
 
 
+def file_deletion(root_dir):
+    print("name of the file you want to delete: ")
+    name = input()
+
+    cond = False  # checks whether the file existed or not.
+    for files in os.listdir(root_dir):
+        if name == os.path.basename(files).split('/')[-1].split('.')[0]:  # checks if the file name matched.
+            direct = os.path.join(root_dir, files)
+            os.remove(direct)
+            cond = True
+    if cond is True:
+        print("File Deleted!")
+    else:
+        print("File not found!")
+
+
+def file_adder(root_dir):
+    print("name of the file to add: ")
+    name = input()
+    print("date of the file: ")
+    date = input()
+    if date <= 2022:
+        print("format of the file: ")
+        format = input()
+
+        fullName = name + "." + date + "." + format
+
+        open(fullName, "x")
+        path = os.path.join("D:\programs\Github\ds-project-olympians-ii", fullName)
+        destination = os.path.join(root_dir, fullName)
+        os.rename(path, destination)
+    else:
+        print("date invalid!")
+        
+        
 def date_order(root_dir, year_dict):  # sorting files by date
     os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main/folder")  # creating a temp folder
     temp = "D:/programs/Github/ds-project-olympians-ii/Main/folder"
@@ -57,4 +91,6 @@ if __name__ == '__main__':
     root_dir = "D:\\programs\\Github\\ds-project-olympians-ii\\Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
+    file_deletion(root_dir)
+    file_adder(root_dir)
     date_order(root_dir, year_dict)
