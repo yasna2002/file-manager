@@ -86,12 +86,13 @@ def file_deleter():
         print("File not found!")
 
 
-def file_deleter(destination):
-    os.remove(destination)
+def file_deleter(dest):
+    os.remove(dest)
     print("File Deleted!")
 
 
 def file_adder():
+    global destination
     print("name of the file to add: ")
     name = input()
     print("date of the file: ")
@@ -99,20 +100,42 @@ def file_adder():
     if int(date) <= 2022:
         print("format of the file: ")
         format = input()
-
         fullName = name + "." + date + "." + format
 
         open(fullName, "x")
         path = os.path.join("D:\programs\Github\ds-project-olympians-ii", fullName)
-        destination = os.path.join(root_dir, fullName)
+
+        if not os.path.isdir(root_dir + "/" + date):
+            os.mkdir(root_dir + "/" + date)
+        if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
+            if not os.path.isdir(root_dir + "/" + date + "/photo"):
+                os.mkdir(root_dir + "/" + date + "/photo")
+            destination = os.path.join(root_dir + "/" + date + "/photo", fullName)
+        if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
+            if not os.path.isdir(root_dir + "/" + date + "/video"):
+                os.mkdir(root_dir + "/" + date + "/video")
+            destination = os.path.join(root_dir + "/" + date + "/video", fullName)
+        if "wav" in format or "aiff" in format:
+            if not os.path.isdir(root_dir + "/" + date + "/voice"):
+                os.mkdir(root_dir + "/" + date + "/voice")
+            destination = os.path.join(root_dir + "/" + date + "/voice", fullName)
+        if "txt" in format:
+            if not os.path.isdir(root_dir + "/" + date + "/text"):
+                os.mkdir(root_dir + "/" + date + "/text")
+            destination = os.path.join(root_dir + "/" + date + "/text", fullName)
+        if "pdf" in format:
+            if not os.path.isdir(root_dir + "/" + date + "/pdf"):
+                os.mkdir(root_dir + "/" + date + "/pdf")
+            destination = os.path.join(root_dir + "/" + date + "/pdf", fullName)
+
         os.rename(path, destination)
 
         files_added_stack.push([fullName, 1])
-
         files_added_undo_stack.push(destination)
+
         print("File created!")
     else:
-        print("date invalid!")
+        print("Date invalid!")
 
 
 def redo():
@@ -126,13 +149,23 @@ def redo():
 
     open(name, "x")  # recreating the last file
     path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
-    destination = os.path.join(root_dir, name)
-    os.rename(path, destination)
+    if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/photo", name)
+    if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/video", name)
+    if "wav" in format or "aiff" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/voice", name)
+    if "txt" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/text", name)
+    if "pdf" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/pdf", name)
+
+    os.rename(path, destination_path)
 
     temp[1] = temp[1] + 1  # increases the index at the end of the name
 
     files_added_stack.push(temp)
-    files_added_undo_stack.push(destination)
+    files_added_undo_stack.push(destination_path)
     print("File recreated!")
 
 
@@ -145,14 +178,14 @@ def undo_adder():
 
 
 def folder_creator(year_dict, root_dir):
-    for key in sorted(year_dict.keys()):  # moving sorted files to the temp dir
+    for key in sorted(year_dict.keys()):  # creating folders with date names
         os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main/" + str(key))
         folder_path = "D:/programs/Github/ds-project-olympians-ii/Main/" + str(key)
 
         for value in range(len(year_dict[key])):
             if "jpg" in year_dict[key][value] or "png" in year_dict[key][value] or "gif" in year_dict[key][value] or "jpeg" in year_dict[key][value]:
                 if not os.path.isdir(folder_path + "/photo"):
-                    os.mkdir(path=folder_path + "/photo")
+                    os.mkdir(path=folder_path + "/photo")  # creating folders with data type name
                 old_dir = os.path.join(root_dir, year_dict[key][value])
                 new_dir = os.path.join(folder_path + "/photo", year_dict[key][value])
                 os.rename(old_dir, new_dir)
