@@ -34,7 +34,6 @@ def find_dirs(root_dir, year_dict):  # finding all folders
     for file in os.listdir(root_dir):  # getting all the files and folders
         folder = os.path.join(root_dir, file)
         if os.path.isdir(folder):  # finding the folders
-            # TODO
             for files in os.listdir(folder):  # getting all the files in the folder
                 old_dir = os.path.join(folder, files)
                 new_dir = os.path.join(root_dir, files)
@@ -128,16 +127,6 @@ def redo():
     files_added_stack.push(temp)
 
     print("File recreated!")
-
-
-def date_order(root_dir, year_dict):  # sorting files by date
-    os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main/folder")  # creating a temp folder
-    temp = "D:/programs/Github/ds-project-olympians-ii/Main/folder"
-    for key in sorted(year_dict.keys()):  # moving sorted files to the temp dir
-        for file in range(len(year_dict[key])):
-            old_dir = os.path.join(root_dir, year_dict[key][file])
-            new_dir = os.path.join(temp, year_dict[key][file])
-            os.rename(old_dir, new_dir)
 
 
 def folder_creator(year_dict, root_dir):
