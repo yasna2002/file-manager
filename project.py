@@ -54,21 +54,14 @@ def find_dirs(root_dir, year_dict):  # finding all folders
             find_dirs(root_dir, year_dict)
 
 
-def date_order(root_dir, year_dict):  # sorting files by date
-    os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main/folder")  # creating a temp folder
-    temp = "D:/programs/Github/ds-project-olympians-ii/Main/folder"
-    for key in sorted(year_dict.keys()):  # moving sorted files to the temp dir
-        for file in range(len(year_dict[key])):
-            old_dir = os.path.join(root_dir, year_dict[key][file])
-            new_dir = os.path.join(temp, year_dict[key][file])
-            os.rename(old_dir, new_dir)
+def date_order(year_dict):  # sorting files by date
+    text_file = open("_sorted by date_.txt", "a")
+    for key in sorted(year_dict.keys()):
+        for value in range(len(year_dict[key])):
+            text_file.write(year_dict[key][value] + "\n")
+    text_file.close()
 
-    for key in sorted(year_dict.keys()):  # moving out sorted files to the main dir
-        for file in range(len(year_dict[key])):
-            old_dir = os.path.join(temp, year_dict[key][file])
-            new_dir = os.path.join(root_dir, year_dict[key][file])
-            os.rename(old_dir, new_dir)
-    os.rmdir(temp)
+
 
 
 def file_deleter(root_dir):
@@ -124,6 +117,7 @@ def file_deleter(root_dir):
         print("File Deleted!")
     else:
         print("File not found!")
+
 
 def file_deleter_undo(dest):
     operations_stack.push([dest, "del"])
@@ -337,13 +331,9 @@ if __name__ == '__main__':
     root_dir = "D:/programs/Github/ds-project-olympians-ii/Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
-    # date_order(root_dir, year_dict)
+    date_order(year_dict)
+    # folder_creator(year_dict, root_dir)
     # file_deleter()
-    folder_creator(year_dict, root_dir)
-    file_adder()
-    redo()
-    undo()
-    date_order(root_dir, year_dict)
-    folder_creator(year_dict, root_dir)
-    file_deleter(root_dir)
-    # file_adder(root_dir)
+    # file_adder()
+    # redo()
+    # undo()
