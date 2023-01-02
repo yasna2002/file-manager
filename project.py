@@ -148,7 +148,7 @@ def file_deleter(root_dir):
                     file_exist = True
                     if len(os.listdir(destination_path)) == 0:
                         os.rmdir(root_dir + "/" + date)
-
+    operations_stack.push([destination_path + "/" + file_fullname, "del"])
     if file_exist:
         print("File Deleted!")
     else:
@@ -292,36 +292,6 @@ def undo():
     elif operations_stack.top()[1] == "del":
         temp = operations_stack.pop()
         file_adder_undo(temp[0])
-
-    temp = files_added_stack.pop()  # gets the last file
-
-    f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
-    date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
-    format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
-
-    name = f_name + "(" + str(temp[1]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
-
-    open(name, "x")  # recreating the last file
-    path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
-
-    if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/photo", name)
-    if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/video", name)
-    if "wav" in format or "aiff" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/voice", name)
-    if "txt" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/text", name)
-    if "pdf" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/pdf", name)
-
-    os.rename(path, destination_path)
-
-    temp[1] = temp[1] + 1  # increases the index at the end of the name
-
-    files_added_stack.push(temp)
-
-    print("File recreated!")
 
 
 def folder_creator(year_dict, root_dir):
