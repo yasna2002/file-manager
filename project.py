@@ -34,7 +34,6 @@ def find_dirs(root_dir, year_dict):  # finding all folders
     for file in os.listdir(root_dir):  # getting all the files and folders
         folder = os.path.join(root_dir, file)
         if os.path.isdir(folder):  # finding the folders
-            # TODO
             for files in os.listdir(folder):  # getting all the files in the folder
                 old_dir = os.path.join(folder, files)
                 new_dir = os.path.join(root_dir, files)
