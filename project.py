@@ -62,6 +62,42 @@ def date_order(year_dict):  # sorting files by date
     text_file.close()
 
 
+def type_order(year_dict):
+    text_file = open("_sorted by type_.txt", "a")
+    type_dict = defaultdict(list)
+    for key in sorted(year_dict.keys()):
+        for value in range(len(year_dict[key])):
+            # print(year_dict[key][value].split(".")[2])
+            if "png" in year_dict[key][value].split(".")[2]:  # photo
+                type_dict[1].append(year_dict[key][value])
+            if "jpeg" in year_dict[key][value].split(".")[2]:
+                type_dict[2].append(year_dict[key][value])
+            if "jpg" in year_dict[key][value].split(".")[2]:
+                type_dict[3].append(year_dict[key][value])
+            if "gif" in year_dict[key][value].split(".")[2]:
+                type_dict[4].append(year_dict[key][value])
+            if "mp4" in year_dict[key][value].split(".")[2]:  # movie
+                type_dict[5].append(year_dict[key][value])
+            if "mov" in year_dict[key][value].split(".")[2]:
+                type_dict[6].append(year_dict[key][value])
+            if "mkv" in year_dict[key][value].split(".")[2]:
+                type_dict[7].append(year_dict[key][value])
+            if "avl" in year_dict[key][value].split(".")[2]:
+                type_dict[8].append(year_dict[key][value])
+            if "wav" in year_dict[key][value].split(".")[2]:  # voice
+                type_dict[9].append(year_dict[key][value])
+            if "aiff" in year_dict[key][value].split(".")[2]:
+                type_dict[10].append(year_dict[key][value])
+            if "txt" in year_dict[key][value].split(".")[2]:  # text
+                type_dict[11].append(year_dict[key][value])
+            if "pdf" in year_dict[key][value].split(".")[2]:  # pdf
+                type_dict[12].append(year_dict[key][value])
+
+    for key in sorted(type_dict.keys()):
+        for value in range(len(type_dict[key])):
+            text_file.write(type_dict[key][value] + "\n")
+
+    text_file.close()
 
 
 def file_deleter(root_dir):
@@ -294,13 +330,15 @@ def folder_creator(year_dict, root_dir):
         folder_path = "D:/programs/Github/ds-project-olympians-ii/Main/" + str(key)
 
         for value in range(len(year_dict[key])):
-            if "jpg" in year_dict[key][value] or "png" in year_dict[key][value] or "gif" in year_dict[key][value] or "jpeg" in year_dict[key][value]:
+            if "jpg" in year_dict[key][value] or "png" in year_dict[key][value] or "gif" in year_dict[key][
+                value] or "jpeg" in year_dict[key][value]:
                 if not os.path.isdir(folder_path + "/photo"):
                     os.mkdir(path=folder_path + "/photo")  # creating folders with data type name
                 old_dir = os.path.join(root_dir, year_dict[key][value])
                 new_dir = os.path.join(folder_path + "/photo", year_dict[key][value])
                 os.rename(old_dir, new_dir)
-            if "mp4" in year_dict[key][value] or "mov" in year_dict[key][value] or "mkv" in year_dict[key][value] or "avl" in year_dict[key][value]:
+            if "mp4" in year_dict[key][value] or "mov" in year_dict[key][value] or "mkv" in year_dict[key][
+                value] or "avl" in year_dict[key][value]:
                 if not os.path.isdir(folder_path + "/video"):
                     os.mkdir(path=folder_path + "/video")
                 old_dir = os.path.join(root_dir, year_dict[key][value])
@@ -332,6 +370,7 @@ if __name__ == '__main__':
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
     date_order(year_dict)
+    type_order(year_dict)
     # folder_creator(year_dict, root_dir)
     # file_deleter()
     # file_adder()
