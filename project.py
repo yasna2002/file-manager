@@ -21,6 +21,7 @@ class Stack:
 
 
 files_added_stack = Stack()
+files_added_undo_stack = Stack()
 
 
 def unzip():  # unzipping the main zip file
@@ -69,7 +70,7 @@ def date_order(root_dir, year_dict):  # sorting files by date
     os.rmdir(temp)
 
 
-def file_deleter(root_dir):
+def file_deleter():
     print("name of the file you want to delete: ")
     name = input()
 
@@ -85,8 +86,16 @@ def file_deleter(root_dir):
         print("File not found!")
 
 
+def file_deleter(destination):
+    os.remove(destination)
+    print("File Deleted!")
+
+
+def file_adder():
+
 def file_adder(root_dir):
     global destination
+
     print("name of the file to add: ")
     name = input()
     print("date of the file: ")
@@ -126,6 +135,7 @@ def file_adder(root_dir):
         os.rename(path, destination)
 
         files_added_stack.push([fullName, 1])
+        files_added_undo_stack.push(destination)
 
         print("File created!")
     else:
@@ -133,13 +143,27 @@ def file_adder(root_dir):
 
 
 def redo():
-    temp = files_added_stack.pop()  # gets the last file
+    if files_added_stack.size == 0:
+        print("Nothing to redo!")
+    else:
+        temp = files_added_stack.pop()  # gets the last file
 
-    f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
-    date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
-    format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
+        print(temp)
 
-    name = f_name + "(" + str(temp[1]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
+        f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
+        print(f_name)
+        date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
+        format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
+
+        name = f_name + "(" + str(temp[1]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
+
+
+        open(name, "x")  # recreating the last file
+        path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
+        destination = os.path.join(root_dir, name)
+        os.rename(path, destination)
+
+        temp[1] = temp[1] + 1  # increases the index at the end of the name
 
     open(name, "x")  # recreating the last file
     path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
@@ -157,11 +181,19 @@ def redo():
 
     os.rename(path, destination_path)
 
-    temp[1] = temp[1] + 1  # increases the index at the end of the name
 
-    files_added_stack.push(temp)
+        files_added_stack.push(temp)
+        files_added_undo_stack.push(destination)
 
-    print("File recreated!")
+        print("File recreated!")
+
+
+def undo_adder():
+    if files_added_undo_stack.size == 0:  #other stacks should be checked
+        print("Nothing to undo!")
+    else:
+        temp = files_added_undo_stack.pop()
+        file_deleter(temp)
 
 
 def folder_creator(year_dict, root_dir):
@@ -207,8 +239,16 @@ if __name__ == '__main__':
     root_dir = "D:\\programs\\Github\\ds-project-olympians-ii\\Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
+
+    # date_order(root_dir, year_dict)
+    # file_deleter()
+    # folder_creator(year_dict, root_dir)
+    file_adder()
+    redo()
+
     date_order(root_dir, year_dict)
     folder_creator(year_dict, root_dir)
     # file_deleter(root_dir)
     file_adder(root_dir)
     redo()
+
