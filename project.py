@@ -22,6 +22,8 @@ class Stack:
 
 
 operations_stack = Stack()
+files_added_stack = Stack()
+
 
 def unzip():  # unzipping the main zip file
     with ZipFile("D:\\programs\\Github\\ds-project-olympians-ii\\Main.zip", 'r') as zObject:
@@ -69,21 +71,59 @@ def date_order(root_dir, year_dict):  # sorting files by date
     os.rmdir(temp)
 
 
-def file_deleter():
-    print("name of the file you want to delete: ")
-    name = input()
+def file_deleter(root_dir):
+    print("Enter the name of file completely to delete : ")
+    file_fullname = input()
+    date = file_fullname.split(".")[1]
+    format = file_fullname.split(".")[2]
 
-    cond = False  # checks whether the file existed or not.
-    for files in os.listdir(root_dir):
-        if name == os.path.basename(files).split('/')[-1].split('.')[0]:  # checks if the file name matched.
-            direct = os.path.join(root_dir, files)
-            os.remove(direct)
-            cond = True
-    if cond is True:
+    file_exist = False  # checks whether the file existed or not.
+    if os.path.isdir(root_dir + "/" + date):
+        if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
+            for file in os.listdir(root_dir + "/" + date + "/photo"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/photo"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(destination_path)
+        if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
+            for file in os.listdir(root_dir + "/" + date + "/video"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/video"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(destination_path)
+        if "wav" in format or "aiff" in format:
+            for file in os.listdir(root_dir + "/" + date + "/voice"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/voice"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(destination_path)
+        if "txt" in format:
+            for file in os.listdir(root_dir + "/" + date + "/text"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/text"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(destination_path)
+        if "pdf" in format:
+            for file in os.listdir(root_dir + "/" + date + "/pdf"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/pdf"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(root_dir + "/" + date)
+
+    if file_exist:
         print("File Deleted!")
     else:
         print("File not found!")
-
 
 def file_deleter_undo(dest):
     operations_stack.push([dest, "del"])
@@ -92,7 +132,7 @@ def file_deleter_undo(dest):
     print("File Deleted!")
 
 
-def file_adder():
+def file_adder(root_dir):
     global destination
     print("name of the file to add: ")
     name = input()
@@ -132,6 +172,7 @@ def file_adder():
         os.rename(path, destination)
 
         operations_stack.push([destination, "add", 1])
+        files_added_stack.push([fullName, 1])
 
         print("File created!")
     else:
@@ -222,6 +263,36 @@ def undo():
         temp = operations_stack.pop()
         file_adder_undo(temp[0])
 
+    temp = files_added_stack.pop()  # gets the last file
+
+    f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
+    date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
+    format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
+
+    name = f_name + "(" + str(temp[1]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
+
+    open(name, "x")  # recreating the last file
+    path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
+
+    if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/photo", name)
+    if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/video", name)
+    if "wav" in format or "aiff" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/voice", name)
+    if "txt" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/text", name)
+    if "pdf" in format:
+        destination_path = os.path.join(root_dir + "/" + date + "/pdf", name)
+
+    os.rename(path, destination_path)
+
+    temp[1] = temp[1] + 1  # increases the index at the end of the name
+
+    files_added_stack.push(temp)
+
+    print("File recreated!")
+
 
 def folder_creator(year_dict, root_dir):
     for key in sorted(year_dict.keys()):  # creating folders with date names
@@ -263,7 +334,7 @@ def folder_creator(year_dict, root_dir):
 
 if __name__ == '__main__':
     unzip()
-    root_dir = "D:\\programs\\Github\\ds-project-olympians-ii\\Main"
+    root_dir = "D:/programs/Github/ds-project-olympians-ii/Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
     # date_order(root_dir, year_dict)
@@ -272,3 +343,7 @@ if __name__ == '__main__':
     file_adder()
     redo()
     undo()
+    date_order(root_dir, year_dict)
+    folder_creator(year_dict, root_dir)
+    file_deleter(root_dir)
+    # file_adder(root_dir)
