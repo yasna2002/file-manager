@@ -5,8 +5,9 @@ from zipfile import ZipFile
 
 
 class Stack:
-    data = []
-    size = 0
+    def __init__(self):
+        self.data = []
+        self.size = 0
 
     def push(self, e):
         self.data.append(e)
@@ -20,6 +21,7 @@ class Stack:
         return self.data[-1]
 
 
+operations_stack = Stack()
 files_added_stack = Stack()
 
 
@@ -123,6 +125,12 @@ def file_deleter(root_dir):
     else:
         print("File not found!")
 
+def file_deleter_undo(dest):
+    operations_stack.push([dest, "del"])
+    os.remove(dest)
+
+    print("File Deleted!")
+
 
 def file_adder(root_dir):
     global destination
@@ -133,7 +141,6 @@ def file_adder(root_dir):
     if int(date) <= 2022:
         print("format of the file: ")
         format = input()
-
         fullName = name + "." + date + "." + format
 
         open(fullName, "x")
@@ -164,14 +171,98 @@ def file_adder(root_dir):
 
         os.rename(path, destination)
 
+        operations_stack.push([destination, "add", 1])
         files_added_stack.push([fullName, 1])
 
         print("File created!")
     else:
-        print("date invalid!")
+        print("Date invalid!")
+
+
+def file_adder_undo(file):
+    name = os.path.basename(file).split('/')[-1].split('.')[0]
+    date = os.path.basename(file).split('/')[-1].split('.')[1]
+    format = os.path.basename(file).split('/')[-1].split('.')[2]
+
+    fullName = name + "." + date + "." + format
+
+    open(fullName, "x")
+    path = os.path.join("D:\programs\Github\ds-project-olympians-ii", fullName)
+
+    if not os.path.isdir(root_dir + "/" + date):
+        os.mkdir(root_dir + "/" + date)
+    if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
+        if not os.path.isdir(root_dir + "/" + date + "/photo"):
+            os.mkdir(root_dir + "/" + date + "/photo")
+        destination = os.path.join(root_dir + "/" + date + "/photo", fullName)
+    if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
+        if not os.path.isdir(root_dir + "/" + date + "/video"):
+            os.mkdir(root_dir + "/" + date + "/video")
+        destination = os.path.join(root_dir + "/" + date + "/video", fullName)
+    if "wav" in format or "aiff" in format:
+        if not os.path.isdir(root_dir + "/" + date + "/voice"):
+            os.mkdir(root_dir + "/" + date + "/voice")
+        destination = os.path.join(root_dir + "/" + date + "/voice", fullName)
+    if "txt" in format:
+        if not os.path.isdir(root_dir + "/" + date + "/text"):
+            os.mkdir(root_dir + "/" + date + "/text")
+        destination = os.path.join(root_dir + "/" + date + "/text", fullName)
+    if "pdf" in format:
+        if not os.path.isdir(root_dir + "/" + date + "/pdf"):
+            os.mkdir(root_dir + "/" + date + "/pdf")
+        destination = os.path.join(root_dir + "/" + date + "/pdf", fullName)
+
+    os.rename(path, destination)
+
+    operations_stack.push([destination, "add", 1])
+
+    print("File created!")
 
 
 def redo():
+    temp = operations_stack.pop()  # gets the last file
+
+    if temp[1] == "add":
+
+        f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
+        date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
+        format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
+
+        name = f_name + "(" + str(temp[2]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
+
+        open(name, "x")  # recreating the last file
+        path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
+        if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/photo", name)
+        if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/video", name)
+        if "wav" in format or "aiff" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/voice", name)
+        if "txt" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/text", name)
+        if "pdf" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/pdf", name)
+
+        os.rename(path, destination_path)
+
+        temp[2] = temp[2] + 1  # increases the index at the end of the name
+
+        operations_stack.push(temp)
+        print("File recreated!")
+    else:
+        print("nothing to redo!")
+
+
+def undo():
+    if operations_stack.size == 0:  # other stacks should be checked
+        print("Nothing to undo!")
+    elif operations_stack.top()[1] == "add":
+        temp = operations_stack.pop()
+        file_deleter_undo(temp[0])
+    elif operations_stack.top()[1] == "del":
+        temp = operations_stack.pop()
+        file_adder_undo(temp[0])
+
     temp = files_added_stack.pop()  # gets the last file
 
     f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
@@ -246,8 +337,13 @@ if __name__ == '__main__':
     root_dir = "D:/programs/Github/ds-project-olympians-ii/Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
+    # date_order(root_dir, year_dict)
+    # file_deleter()
+    folder_creator(year_dict, root_dir)
+    file_adder()
+    redo()
+    undo()
     date_order(root_dir, year_dict)
     folder_creator(year_dict, root_dir)
     file_deleter(root_dir)
     # file_adder(root_dir)
-    # redo()
