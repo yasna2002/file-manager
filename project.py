@@ -53,7 +53,24 @@ def find_dirs(root_dir, year_dict):  # finding all folders
             find_dirs(root_dir, year_dict)
 
 
-def file_deletion(root_dir):
+def date_order(root_dir, year_dict):  # sorting files by date
+    os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main/folder")  # creating a temp folder
+    temp = "D:/programs/Github/ds-project-olympians-ii/Main/folder"
+    for key in sorted(year_dict.keys()):  # moving sorted files to the temp dir
+        for file in range(len(year_dict[key])):
+            old_dir = os.path.join(root_dir, year_dict[key][file])
+            new_dir = os.path.join(temp, year_dict[key][file])
+            os.rename(old_dir, new_dir)
+
+    for key in sorted(year_dict.keys()):  # moving out sorted files to the main dir
+        for file in range(len(year_dict[key])):
+            old_dir = os.path.join(temp, year_dict[key][file])
+            new_dir = os.path.join(root_dir, year_dict[key][file])
+            os.rename(old_dir, new_dir)
+    os.rmdir(temp)
+
+
+def file_deleter(root_dir):
     print("name of the file you want to delete: ")
     name = input()
 
@@ -122,12 +139,43 @@ def date_order(root_dir, year_dict):  # sorting files by date
             new_dir = os.path.join(temp, year_dict[key][file])
             os.rename(old_dir, new_dir)
 
-    for key in sorted(year_dict.keys()):  # moving out sorted files to the main dir
-        for file in range(len(year_dict[key])):
-            old_dir = os.path.join(temp, year_dict[key][file])
-            new_dir = os.path.join(root_dir, year_dict[key][file])
-            os.rename(old_dir, new_dir)
-    os.rmdir(temp)
+
+def folder_creator(year_dict, root_dir):
+    for key in sorted(year_dict.keys()):  # moving sorted files to the temp dir
+        os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main/" + str(key))
+        folder_path = "D:/programs/Github/ds-project-olympians-ii/Main/" + str(key)
+
+        for value in range(len(year_dict[key])):
+            if "jpg" in year_dict[key][value] or "png" in year_dict[key][value] or "gif" in year_dict[key][value] or "jpeg" in year_dict[key][value]:
+                if not os.path.isdir(folder_path + "/photo"):
+                    os.mkdir(path=folder_path + "/photo")
+                old_dir = os.path.join(root_dir, year_dict[key][value])
+                new_dir = os.path.join(folder_path + "/photo", year_dict[key][value])
+                os.rename(old_dir, new_dir)
+            if "mp4" in year_dict[key][value] or "mov" in year_dict[key][value] or "mkv" in year_dict[key][value] or "avl" in year_dict[key][value]:
+                if not os.path.isdir(folder_path + "/video"):
+                    os.mkdir(path=folder_path + "/video")
+                old_dir = os.path.join(root_dir, year_dict[key][value])
+                new_dir = os.path.join(folder_path + "/video", year_dict[key][value])
+                os.rename(old_dir, new_dir)
+            if "wav" in year_dict[key][value] or "aiff" in year_dict[key][value]:
+                if not os.path.isdir(folder_path + "/voice"):
+                    os.mkdir(path=folder_path + "/voice")
+                old_dir = os.path.join(root_dir, year_dict[key][value])
+                new_dir = os.path.join(folder_path + "/voice", year_dict[key][value])
+                os.rename(old_dir, new_dir)
+            if "txt" in year_dict[key][value]:
+                if not os.path.isdir(folder_path + "/text"):
+                    os.mkdir(path=folder_path + "/text")
+                old_dir = os.path.join(root_dir, year_dict[key][value])
+                new_dir = os.path.join(folder_path + "/text", year_dict[key][value])
+                os.rename(old_dir, new_dir)
+            if "pdf" in year_dict[key][value]:
+                if not os.path.isdir(folder_path + "/pdf"):
+                    os.mkdir(path=folder_path + "/pdf")
+                old_dir = os.path.join(root_dir, year_dict[key][value])
+                new_dir = os.path.join(folder_path + "/pdf", year_dict[key][value])
+                os.rename(old_dir, new_dir)
 
 
 if __name__ == '__main__':
@@ -135,5 +183,9 @@ if __name__ == '__main__':
     root_dir = "D:\\programs\\Github\\ds-project-olympians-ii\\Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
-    file_adder(root_dir)
-    redo()
+    date_order(root_dir, year_dict)
+    # file_deleter(root_dir)
+    # file_adder(root_dir)
+    # folder_creator(year_dict, root_dir)
+    # file_adder(root_dir)
+    # redo()
