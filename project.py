@@ -4,6 +4,25 @@ from collections import defaultdict
 from zipfile import ZipFile
 
 
+class Stack:
+    data = []
+    size = 0
+
+    def push(self, e):
+        self.data.append(e)
+        self.size += 1
+
+    def pop(self):
+        self.size -= 1
+        return self.data.pop()
+
+    def top(self):
+        return self.data[-1]
+
+
+files_added_stack = Stack()
+
+
 def unzip():  # unzipping the main zip file
     with ZipFile("D:\\programs\\Github\\ds-project-olympians-ii\\Main.zip", 'r') as zObject:
         os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main")  # unzips here
@@ -55,7 +74,7 @@ def file_adder(root_dir):
     name = input()
     print("date of the file: ")
     date = input()
-    if date <= 2022:
+    if int(date) <= 2022:
         print("format of the file: ")
         format = input()
 
@@ -65,10 +84,35 @@ def file_adder(root_dir):
         path = os.path.join("D:\programs\Github\ds-project-olympians-ii", fullName)
         destination = os.path.join(root_dir, fullName)
         os.rename(path, destination)
+
+        files_added_stack.push([fullName, 1])
+
+        print("File created!")
     else:
         print("date invalid!")
-        
-        
+
+
+def redo():
+    temp = files_added_stack.pop()  # gets the last file
+
+    f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
+    date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
+    format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
+
+    name = f_name + "(" + str(temp[1]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
+
+    open(name, "x")  # recreating the last file
+    path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
+    destination = os.path.join(root_dir, name)
+    os.rename(path, destination)
+
+    temp[1] = temp[1] + 1  # increases the index at the end of the name
+
+    files_added_stack.push(temp)
+
+    print("File recreated!")
+
+
 def date_order(root_dir, year_dict):  # sorting files by date
     os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main/folder")  # creating a temp folder
     temp = "D:/programs/Github/ds-project-olympians-ii/Main/folder"
@@ -91,6 +135,5 @@ if __name__ == '__main__':
     root_dir = "D:\\programs\\Github\\ds-project-olympians-ii\\Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
-    file_deletion(root_dir)
     file_adder(root_dir)
-    date_order(root_dir, year_dict)
+    redo()
