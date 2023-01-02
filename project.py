@@ -21,8 +21,7 @@ class Stack:
         return self.data[-1]
 
 
-files_added_stack = Stack()
-files_added_undo_stack = Stack()
+operations_stack = Stack()
 
 def unzip():  # unzipping the main zip file
     with ZipFile("D:\\programs\\Github\\ds-project-olympians-ii\\Main.zip", 'r') as zObject:
@@ -86,8 +85,10 @@ def file_deleter():
         print("File not found!")
 
 
-def file_deleter(dest):
+def file_deleter_undo(dest):
+    operations_stack.push([dest, "del"])
     os.remove(dest)
+
     print("File Deleted!")
 
 
@@ -130,51 +131,96 @@ def file_adder():
 
         os.rename(path, destination)
 
-        files_added_stack.push([fullName, 1])
-        files_added_undo_stack.push(destination)
+        operations_stack.push([destination, "add", 1])
 
         print("File created!")
     else:
         print("Date invalid!")
 
 
-def redo():
-    temp = files_added_stack.pop()  # gets the last file
+def file_adder_undo(file):
+    name = os.path.basename(file).split('/')[-1].split('.')[0]
+    date = os.path.basename(file).split('/')[-1].split('.')[1]
+    format = os.path.basename(file).split('/')[-1].split('.')[2]
 
-    f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
-    date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
-    format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
+    fullName = name + "." + date + "." + format
 
-    name = f_name + "(" + str(temp[1]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
+    open(fullName, "x")
+    path = os.path.join("D:\programs\Github\ds-project-olympians-ii", fullName)
 
-    open(name, "x")  # recreating the last file
-    path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
+    if not os.path.isdir(root_dir + "/" + date):
+        os.mkdir(root_dir + "/" + date)
     if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/photo", name)
+        if not os.path.isdir(root_dir + "/" + date + "/photo"):
+            os.mkdir(root_dir + "/" + date + "/photo")
+        destination = os.path.join(root_dir + "/" + date + "/photo", fullName)
     if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/video", name)
+        if not os.path.isdir(root_dir + "/" + date + "/video"):
+            os.mkdir(root_dir + "/" + date + "/video")
+        destination = os.path.join(root_dir + "/" + date + "/video", fullName)
     if "wav" in format or "aiff" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/voice", name)
+        if not os.path.isdir(root_dir + "/" + date + "/voice"):
+            os.mkdir(root_dir + "/" + date + "/voice")
+        destination = os.path.join(root_dir + "/" + date + "/voice", fullName)
     if "txt" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/text", name)
+        if not os.path.isdir(root_dir + "/" + date + "/text"):
+            os.mkdir(root_dir + "/" + date + "/text")
+        destination = os.path.join(root_dir + "/" + date + "/text", fullName)
     if "pdf" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/pdf", name)
+        if not os.path.isdir(root_dir + "/" + date + "/pdf"):
+            os.mkdir(root_dir + "/" + date + "/pdf")
+        destination = os.path.join(root_dir + "/" + date + "/pdf", fullName)
 
-    os.rename(path, destination_path)
+    os.rename(path, destination)
 
-    temp[1] = temp[1] + 1  # increases the index at the end of the name
+    operations_stack.push([destination, "add", 1])
 
-    files_added_stack.push(temp)
-    files_added_undo_stack.push(destination_path)
-    print("File recreated!")
+    print("File created!")
 
 
-def undo_adder():
-    if files_added_undo_stack.size == 0:  #other stacks should be checked
-        print("Nothing to undo!")
+def redo():
+    temp = operations_stack.pop()  # gets the last file
+
+    if temp[1] == "add":
+
+        f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
+        date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
+        format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
+
+        name = f_name + "(" + str(temp[2]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
+
+        open(name, "x")  # recreating the last file
+        path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
+        if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/photo", name)
+        if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/video", name)
+        if "wav" in format or "aiff" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/voice", name)
+        if "txt" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/text", name)
+        if "pdf" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/pdf", name)
+
+        os.rename(path, destination_path)
+
+        temp[2] = temp[2] + 1  # increases the index at the end of the name
+
+        operations_stack.push(temp)
+        print("File recreated!")
     else:
-        temp = files_added_undo_stack.pop()
-        file_deleter(temp)
+        print("nothing to redo!")
+
+
+def undo():
+    if operations_stack.size == 0:  # other stacks should be checked
+        print("Nothing to undo!")
+    elif operations_stack.top()[1] == "add":
+        temp = operations_stack.pop()
+        file_deleter_undo(temp[0])
+    elif operations_stack.top()[1] == "del":
+        temp = operations_stack.pop()
+        file_adder_undo(temp[0])
 
 
 def folder_creator(year_dict, root_dir):
@@ -222,8 +268,7 @@ if __name__ == '__main__':
     find_dirs(root_dir, year_dict)
     # date_order(root_dir, year_dict)
     # file_deleter()
-    # folder_creator(year_dict, root_dir)
+    folder_creator(year_dict, root_dir)
     file_adder()
     redo()
-    undo_adder()
-    undo_adder()
+    undo()
