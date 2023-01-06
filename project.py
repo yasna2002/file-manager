@@ -4,6 +4,12 @@ from collections import defaultdict
 from zipfile import ZipFile
 
 
+class Tree:
+    def __init__(self, data):
+        self.data = data
+        self.children:list[Tree] = []
+
+
 class Stack:
     def __init__(self):
         self.data = []
@@ -334,15 +340,47 @@ def folder_creator(year_dict, root_dir):
                 os.rename(old_dir, new_dir)
 
 
+def tree_maker():
+    with ZipFile("D:\\programs\\Github\\ds-project-olympians-ii\\Main.zip", 'r') as zObject:
+        os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Phase3")  # unzips here
+
+        zObject.extractall(path="D:\\programs\\Github\\ds-project-olympians-ii\\Phase3")
+
+    directory = "D:/programs/Github/ds-project-olympians-ii/Phase3"
+
+    folder = os.path.join(directory, os.listdir(directory)[0])
+    root = Tree(os.listdir(directory)[0])
+
+    directory_tree(folder, root)
+
+
+def directory_tree(path, root_node):
+    for file in os.listdir(path):
+        fold = os.path.join(path, file)
+        file_node = Tree(file)
+
+        if os.path.isdir(fold):
+            print("File is directory")
+            print(file)
+            root_node.children.append(file_node)
+            print("root_node children after appending:", [x.data for x in root_node.children])
+            directory_tree(fold, file_node)
+        else:
+            print("File is NOT directory")
+            print(file)
+            root_node.children.insert(0, file_node)
+
+
 if __name__ == '__main__':
     unzip()
     root_dir = "D:/programs/Github/ds-project-olympians-ii/Main"
     year_dict = defaultdict(list)
     find_dirs(root_dir, year_dict)
-    date_order(year_dict)
-    type_order(year_dict)
+    # date_order(year_dict)
+    # type_order(year_dict)
     # folder_creator(year_dict, root_dir)
     # file_deleter()
     # file_adder()
     # redo()
     # undo()
+    tree_maker()
