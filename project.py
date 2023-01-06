@@ -4,6 +4,12 @@ from collections import defaultdict
 from zipfile import ZipFile
 
 
+class Tree:
+    def __init__(self, data):
+        self.data = data
+        self.children: list[Tree] = []
+
+
 class Stack:
     def __init__(self):
         self.data = []
@@ -21,8 +27,10 @@ class Stack:
         return self.data[-1]
 
 
+operations_stack = Stack()
 files_added_stack = Stack()
-files_added_undo_stack = Stack()
+file_tree_root = None
+
 
 def unzip():  # unzipping the main zip file
     with ZipFile("D:\\programs\\Github\\ds-project-olympians-ii\\Main.zip", 'r') as zObject:
@@ -53,45 +61,115 @@ def find_dirs(root_dir, year_dict):  # finding all folders
             find_dirs(root_dir, year_dict)
 
 
-def date_order(root_dir, year_dict):  # sorting files by date
-    os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Main/folder")  # creating a temp folder
-    temp = "D:/programs/Github/ds-project-olympians-ii/Main/folder"
-    for key in sorted(year_dict.keys()):  # moving sorted files to the temp dir
-        for file in range(len(year_dict[key])):
-            old_dir = os.path.join(root_dir, year_dict[key][file])
-            new_dir = os.path.join(temp, year_dict[key][file])
-            os.rename(old_dir, new_dir)
-
-    for key in sorted(year_dict.keys()):  # moving out sorted files to the main dir
-        for file in range(len(year_dict[key])):
-            old_dir = os.path.join(temp, year_dict[key][file])
-            new_dir = os.path.join(root_dir, year_dict[key][file])
-            os.rename(old_dir, new_dir)
-    os.rmdir(temp)
+def date_order(year_dict):  # sorting files by date
+    text_file = open("_sorted by date_.txt", "a")
+    for key in sorted(year_dict.keys()):
+        for value in range(len(year_dict[key])):
+            text_file.write(year_dict[key][value] + "\n")
+    text_file.close()
 
 
-def file_deleter():
-    print("name of the file you want to delete: ")
-    name = input()
+def type_order(year_dict):
+    text_file = open("_sorted by type_.txt", "a")
+    type_dict = defaultdict(list)
+    for key in sorted(year_dict.keys()):
+        for value in range(len(year_dict[key])):
+            # print(year_dict[key][value].split(".")[2])
+            if "png" in year_dict[key][value].split(".")[2]:  # photo
+                type_dict[1].append(year_dict[key][value])
+            if "jpeg" in year_dict[key][value].split(".")[2]:
+                type_dict[2].append(year_dict[key][value])
+            if "jpg" in year_dict[key][value].split(".")[2]:
+                type_dict[3].append(year_dict[key][value])
+            if "gif" in year_dict[key][value].split(".")[2]:
+                type_dict[4].append(year_dict[key][value])
+            if "mp4" in year_dict[key][value].split(".")[2]:  # movie
+                type_dict[5].append(year_dict[key][value])
+            if "mov" in year_dict[key][value].split(".")[2]:
+                type_dict[6].append(year_dict[key][value])
+            if "mkv" in year_dict[key][value].split(".")[2]:
+                type_dict[7].append(year_dict[key][value])
+            if "avl" in year_dict[key][value].split(".")[2]:
+                type_dict[8].append(year_dict[key][value])
+            if "wav" in year_dict[key][value].split(".")[2]:  # voice
+                type_dict[9].append(year_dict[key][value])
+            if "aiff" in year_dict[key][value].split(".")[2]:
+                type_dict[10].append(year_dict[key][value])
+            if "txt" in year_dict[key][value].split(".")[2]:  # text
+                type_dict[11].append(year_dict[key][value])
+            if "pdf" in year_dict[key][value].split(".")[2]:  # pdf
+                type_dict[12].append(year_dict[key][value])
 
-    cond = False  # checks whether the file existed or not.
-    for files in os.listdir(root_dir):
-        if name == os.path.basename(files).split('/')[-1].split('.')[0]:  # checks if the file name matched.
-            direct = os.path.join(root_dir, files)
-            os.remove(direct)
-            cond = True
-    if cond is True:
+    for key in sorted(type_dict.keys()):
+        for value in range(len(type_dict[key])):
+            text_file.write(type_dict[key][value] + "\n")
+
+    text_file.close()
+
+
+def file_deleter(root_dir):
+    print("Enter the name of file completely to delete : ")
+    file_fullname = input()
+    date = file_fullname.split(".")[1]
+    format = file_fullname.split(".")[2]
+
+    file_exist = False  # checks whether the file existed or not.
+    if os.path.isdir(root_dir + "/" + date):
+        if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
+            for file in os.listdir(root_dir + "/" + date + "/photo"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/photo"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(destination_path)
+        if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
+            for file in os.listdir(root_dir + "/" + date + "/video"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/video"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(destination_path)
+        if "wav" in format or "aiff" in format:
+            for file in os.listdir(root_dir + "/" + date + "/voice"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/voice"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(destination_path)
+        if "txt" in format:
+            for file in os.listdir(root_dir + "/" + date + "/text"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/text"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(destination_path)
+        if "pdf" in format:
+            for file in os.listdir(root_dir + "/" + date + "/pdf"):
+                if file.split(".")[0] == file_fullname.split(".")[0]:
+                    destination_path = root_dir + "/" + date + "/pdf"
+                    os.remove(destination_path + "/" + file_fullname)
+                    file_exist = True
+                    if len(os.listdir(destination_path)) == 0:
+                        os.rmdir(root_dir + "/" + date)
+    operations_stack.push([destination_path + "/" + file_fullname, "del"])
+    if file_exist:
         print("File Deleted!")
     else:
         print("File not found!")
 
 
-def file_deleter(dest):
+def file_deleter_undo(dest):
+    operations_stack.push([dest, "del"])
     os.remove(dest)
+
     print("File Deleted!")
 
 
-def file_adder():
+def file_adder(root_dir):
     global destination
     print("name of the file to add: ")
     name = input()
@@ -130,51 +208,97 @@ def file_adder():
 
         os.rename(path, destination)
 
+        operations_stack.push([destination, "add", 1])
         files_added_stack.push([fullName, 1])
-        files_added_undo_stack.push(destination)
 
         print("File created!")
     else:
         print("Date invalid!")
 
 
-def redo():
-    temp = files_added_stack.pop()  # gets the last file
+def file_adder_undo(file):
+    name = os.path.basename(file).split('/')[-1].split('.')[0]
+    date = os.path.basename(file).split('/')[-1].split('.')[1]
+    format = os.path.basename(file).split('/')[-1].split('.')[2]
 
-    f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
-    date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
-    format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
+    fullName = name + "." + date + "." + format
 
-    name = f_name + "(" + str(temp[1]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
+    open(fullName, "x")
+    path = os.path.join("D:\programs\Github\ds-project-olympians-ii", fullName)
 
-    open(name, "x")  # recreating the last file
-    path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
+    if not os.path.isdir(root_dir + "/" + date):
+        os.mkdir(root_dir + "/" + date)
     if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/photo", name)
+        if not os.path.isdir(root_dir + "/" + date + "/photo"):
+            os.mkdir(root_dir + "/" + date + "/photo")
+        destination = os.path.join(root_dir + "/" + date + "/photo", fullName)
     if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/video", name)
+        if not os.path.isdir(root_dir + "/" + date + "/video"):
+            os.mkdir(root_dir + "/" + date + "/video")
+        destination = os.path.join(root_dir + "/" + date + "/video", fullName)
     if "wav" in format or "aiff" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/voice", name)
+        if not os.path.isdir(root_dir + "/" + date + "/voice"):
+            os.mkdir(root_dir + "/" + date + "/voice")
+        destination = os.path.join(root_dir + "/" + date + "/voice", fullName)
     if "txt" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/text", name)
+        if not os.path.isdir(root_dir + "/" + date + "/text"):
+            os.mkdir(root_dir + "/" + date + "/text")
+        destination = os.path.join(root_dir + "/" + date + "/text", fullName)
     if "pdf" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/pdf", name)
+        if not os.path.isdir(root_dir + "/" + date + "/pdf"):
+            os.mkdir(root_dir + "/" + date + "/pdf")
+        destination = os.path.join(root_dir + "/" + date + "/pdf", fullName)
 
-    os.rename(path, destination_path)
+    os.rename(path, destination)
 
-    temp[1] = temp[1] + 1  # increases the index at the end of the name
+    operations_stack.push([destination, "add", 1])
 
-    files_added_stack.push(temp)
-    files_added_undo_stack.push(destination_path)
-    print("File recreated!")
+    print("File created!")
 
 
-def undo_adder():
-    if files_added_undo_stack.size == 0:  #other stacks should be checked
-        print("Nothing to undo!")
+def redo():
+    temp = operations_stack.pop()  # gets the last file
+
+    if temp[1] == "add":
+
+        f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
+        date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
+        format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
+
+        name = f_name + "(" + str(temp[2]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
+
+        open(name, "x")  # recreating the last file
+        path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
+        if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/photo", name)
+        if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/video", name)
+        if "wav" in format or "aiff" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/voice", name)
+        if "txt" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/text", name)
+        if "pdf" in format:
+            destination_path = os.path.join(root_dir + "/" + date + "/pdf", name)
+
+        os.rename(path, destination_path)
+
+        temp[2] = temp[2] + 1  # increases the index at the end of the name
+
+        operations_stack.push(temp)
+        print("File recreated!")
     else:
-        temp = files_added_undo_stack.pop()
-        file_deleter(temp)
+        print("nothing to redo!")
+
+
+def undo():
+    if operations_stack.size == 0:  # other stacks should be checked
+        print("Nothing to undo!")
+    elif operations_stack.top()[1] == "add":
+        temp = operations_stack.pop()
+        file_deleter_undo(temp[0])
+    elif operations_stack.top()[1] == "del":
+        temp = operations_stack.pop()
+        file_adder_undo(temp[0])
 
 
 def folder_creator(year_dict, root_dir):
@@ -183,13 +307,15 @@ def folder_creator(year_dict, root_dir):
         folder_path = "D:/programs/Github/ds-project-olympians-ii/Main/" + str(key)
 
         for value in range(len(year_dict[key])):
-            if "jpg" in year_dict[key][value] or "png" in year_dict[key][value] or "gif" in year_dict[key][value] or "jpeg" in year_dict[key][value]:
+            if "jpg" in year_dict[key][value] or "png" in year_dict[key][value] or "gif" in year_dict[key][
+                value] or "jpeg" in year_dict[key][value]:
                 if not os.path.isdir(folder_path + "/photo"):
                     os.mkdir(path=folder_path + "/photo")  # creating folders with data type name
                 old_dir = os.path.join(root_dir, year_dict[key][value])
                 new_dir = os.path.join(folder_path + "/photo", year_dict[key][value])
                 os.rename(old_dir, new_dir)
-            if "mp4" in year_dict[key][value] or "mov" in year_dict[key][value] or "mkv" in year_dict[key][value] or "avl" in year_dict[key][value]:
+            if "mp4" in year_dict[key][value] or "mov" in year_dict[key][value] or "mkv" in year_dict[key][
+                value] or "avl" in year_dict[key][value]:
                 if not os.path.isdir(folder_path + "/video"):
                     os.mkdir(path=folder_path + "/video")
                 old_dir = os.path.join(root_dir, year_dict[key][value])
@@ -215,15 +341,128 @@ def folder_creator(year_dict, root_dir):
                 os.rename(old_dir, new_dir)
 
 
+def tree_maker():
+    global file_tree_root
+
+    with ZipFile("D:\\programs\\Github\\ds-project-olympians-ii\\Main.zip", 'r') as zObject:
+        os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Phase3")  # unzips here
+
+        zObject.extractall(path="D:\\programs\\Github\\ds-project-olympians-ii\\Phase3")
+
+    directory = "D:/programs/Github/ds-project-olympians-ii/Phase3"
+
+    folder = os.path.join(directory, os.listdir(directory)[0])
+    root = Tree(os.listdir(directory)[0])
+    file_tree_root = root
+
+    directory_tree(folder, root)
+
+
+def directory_tree(path, root_node):
+    file_in_dir_count = 0
+    for file in os.listdir(path):
+        fold = os.path.join(path, file)
+        file_node = Tree(file)
+
+        if os.path.isdir(fold):
+            print("File is directory", file)
+            root_node.children.append(file_node)
+            print("root_node children after appending:", [x.data for x in root_node.children])
+            directory_tree(fold, file_node)
+        else:
+            print("File is NOT directory", file)
+
+            date = file.split('.')[1]
+            if int(date) > 2022:
+                continue
+
+            root_node.children.insert(file_in_dir_count, file_node)
+            file_in_dir_count += 1
+
+
+# Searches a folder name in the file tree structure with BFS
+def search_folder(folder_name_to_find):
+    if file_tree_root is None:
+        raise Exception("file_tree_root is None. It seems that file tree structure is not initialized."
+                        "Call tree_maker() first.")
+
+    queue = [file_tree_root]
+
+    while len(queue) != 0:
+        item = queue.pop()
+        if item.data == folder_name_to_find:
+            return item
+
+        for child in item.children:
+            queue.append(child)
+
+    return None
+
+
+def traverse_tree_inorder(root: Tree | None):
+    result = []
+
+    if len(root.children) > 0:
+        result = result + traverse_tree_inorder(root.children[0])
+
+    result.append(root)
+
+    for i in range(1, len(root.children)):
+        result = result + traverse_tree_inorder(root.children[i])
+
+    return result
+
+
+def traverse_tree_preorder(root: Tree | None):
+    result = [root]
+
+    for child in root.children:
+        result = result + traverse_tree_preorder(child)
+
+    return result
+
+
+def traverse_tree_postorder(root: Tree | None):
+    result = []
+
+    for child in root.children:
+        result = result + traverse_tree_postorder(child)
+
+    result.append(root)
+
+    return result
+
+
+def print_tree():
+    print("Enter folder name: ")
+    name = input()
+    node = search_folder(name)
+    if node is not None:
+        print("Preorder: ", to_string_tree_traversal(traverse_tree_preorder(node)))
+        print("Postorder: ", to_string_tree_traversal(traverse_tree_postorder(node)))
+        print("Inorder: ", to_string_tree_traversal(traverse_tree_inorder(node)))
+    else:
+        print("Folder not found!")
+
+
+def to_string_tree_traversal(path_list):
+    final_str = ""
+    for i, item in enumerate(path_list):
+        final_str = final_str + (" * " if i > 0 else "") + str(item.data)
+    return final_str
+
+
 if __name__ == '__main__':
-    unzip()
-    root_dir = "D:\\programs\\Github\\ds-project-olympians-ii\\Main"
-    year_dict = defaultdict(list)
-    find_dirs(root_dir, year_dict)
-    # date_order(root_dir, year_dict)
-    # file_deleter()
+    # unzip()
+    # root_dir = "D:/programs/Github/ds-project-olympians-ii/Main"
+    # year_dict = defaultdict(list)
+    # find_dirs(root_dir, year_dict)
+    # date_order(year_dict)
+    # type_order(year_dict)
     # folder_creator(year_dict, root_dir)
-    file_adder()
-    redo()
-    undo_adder()
-    undo_adder()
+    # file_deleter()
+    # file_adder()
+    # redo()
+    # undo()
+    tree_maker()
+    print_tree()
