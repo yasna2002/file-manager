@@ -365,13 +365,9 @@ def directory_tree(path, root_node):
         file_node = Tree(file)
 
         if os.path.isdir(fold):
-            print("File is directory", file)
             root_node.children.append(file_node)
-            print("root_node children after appending:", [x.data for x in root_node.children])
             directory_tree(fold, file_node)
         else:
-            print("File is NOT directory", file)
-
             date = file.split('.')[1]
             if int(date) > 2022:
                 continue
@@ -453,7 +449,7 @@ def to_string_tree_traversal(path_list):
 
 
 if __name__ == '__main__':
-    # unzip()
+    unzip()
     # root_dir = "D:/programs/Github/ds-project-olympians-ii/Main"
     # year_dict = defaultdict(list)
     # find_dirs(root_dir, year_dict)
