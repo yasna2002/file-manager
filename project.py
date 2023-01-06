@@ -371,6 +371,11 @@ def directory_tree(path, root_node):
             directory_tree(fold, file_node)
         else:
             print("File is NOT directory", file)
+
+            date = file.split('.')[1]
+            if int(date) > 2022:
+                continue
+
             root_node.children.insert(file_in_dir_count, file_node)
             file_in_dir_count += 1
 
@@ -428,6 +433,25 @@ def traverse_tree_postorder(root: Tree | None):
     return result
 
 
+def print_tree():
+    print("Enter folder name: ")
+    name = input()
+    node = search_folder(name)
+    if node is not None:
+        print("Preorder: ", to_string_tree_traversal(traverse_tree_preorder(node)))
+        print("Postorder: ", to_string_tree_traversal(traverse_tree_postorder(node)))
+        print("Inorder: ", to_string_tree_traversal(traverse_tree_inorder(node)))
+    else:
+        print("Folder not found!")
+
+
+def to_string_tree_traversal(path_list):
+    final_str = ""
+    for i, item in enumerate(path_list):
+        final_str = final_str + (" * " if i > 0 else "") + str(item.data)
+    return final_str
+
+
 if __name__ == '__main__':
     # unzip()
     # root_dir = "D:/programs/Github/ds-project-olympians-ii/Main"
@@ -441,4 +465,4 @@ if __name__ == '__main__':
     # redo()
     # undo()
     tree_maker()
-    print([x.data for x in traverse_tree_inorder(file_tree_root)])
+    print_tree()
