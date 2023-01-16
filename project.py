@@ -4,6 +4,12 @@ from collections import defaultdict
 from zipfile import ZipFile
 
 
+class Tree:
+    def __init__(self, data):
+        self.data = data
+        self.children: list[Tree] = []
+
+
 class Stack:
     def __init__(self):
         self.data = []
@@ -23,6 +29,7 @@ class Stack:
 
 operations_stack = Stack()
 files_added_stack = Stack()
+file_tree_root = None
 
 
 def unzip():  # unzipping the main zip file
@@ -148,7 +155,7 @@ def file_deleter(root_dir):
                     file_exist = True
                     if len(os.listdir(destination_path)) == 0:
                         os.rmdir(root_dir + "/" + date)
-
+    operations_stack.push([destination_path + "/" + file_fullname, "del"])
     if file_exist:
         print("File Deleted!")
     else:
@@ -293,36 +300,6 @@ def undo():
         temp = operations_stack.pop()
         file_adder_undo(temp[0])
 
-    temp = files_added_stack.pop()  # gets the last file
-
-    f_name = os.path.basename(temp[0]).split('/')[-1].split('.')[0]
-    date = os.path.basename(temp[0]).split('/')[-1].split('.')[1]
-    format = os.path.basename(temp[0]).split('/')[-1].split('.')[2]
-
-    name = f_name + "(" + str(temp[1]) + ")" + "." + date + "." + format  # adds a 1,2,3... at the end of the name
-
-    open(name, "x")  # recreating the last file
-    path = os.path.join("D:\programs\Github\ds-project-olympians-ii", name)
-
-    if "jpg" in format or "png" in format or "gif" in format or "jpeg" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/photo", name)
-    if "mp4" in format or "mov" in format or "mkv" in format or "avl" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/video", name)
-    if "wav" in format or "aiff" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/voice", name)
-    if "txt" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/text", name)
-    if "pdf" in format:
-        destination_path = os.path.join(root_dir + "/" + date + "/pdf", name)
-
-    os.rename(path, destination_path)
-
-    temp[1] = temp[1] + 1  # increases the index at the end of the name
-
-    files_added_stack.push(temp)
-
-    print("File recreated!")
-
 
 def folder_creator(year_dict, root_dir):
     for key in sorted(year_dict.keys()):  # creating folders with date names
@@ -364,15 +341,128 @@ def folder_creator(year_dict, root_dir):
                 os.rename(old_dir, new_dir)
 
 
+def tree_maker():
+    global file_tree_root
+
+    with ZipFile("D:\\programs\\Github\\ds-project-olympians-ii\\Main.zip", 'r') as zObject:
+        os.mkdir(path="D:/programs/Github/ds-project-olympians-ii/Phase3")  # unzips here
+
+        zObject.extractall(path="D:\\programs\\Github\\ds-project-olympians-ii\\Phase3")
+
+    directory = "D:/programs/Github/ds-project-olympians-ii/Phase3"
+
+    folder = os.path.join(directory, os.listdir(directory)[0])
+    root = Tree(os.listdir(directory)[0])
+    file_tree_root = root
+
+    directory_tree(folder, root)
+
+
+def directory_tree(path, root_node):
+    file_in_dir_count = 0
+    for file in os.listdir(path):
+        fold = os.path.join(path, file)
+        file_node = Tree(file)
+
+        if os.path.isdir(fold):
+            print("File is directory", file)
+            root_node.children.append(file_node)
+            print("root_node children after appending:", [x.data for x in root_node.children])
+            directory_tree(fold, file_node)
+        else:
+            print("File is NOT directory", file)
+
+            date = file.split('.')[1]
+            if int(date) > 2022:
+                continue
+
+            root_node.children.insert(file_in_dir_count, file_node)
+            file_in_dir_count += 1
+
+
+# Searches a folder name in the file tree structure with BFS
+def search_folder(folder_name_to_find):
+    if file_tree_root is None:
+        raise Exception("file_tree_root is None. It seems that file tree structure is not initialized."
+                        "Call tree_maker() first.")
+
+    queue = [file_tree_root]
+
+    while len(queue) != 0:
+        item = queue.pop()
+        if item.data == folder_name_to_find:
+            return item
+
+        for child in item.children:
+            queue.append(child)
+
+    return None
+
+
+def traverse_tree_inorder(root: Tree | None):
+    result = []
+
+    if len(root.children) > 0:
+        result = result + traverse_tree_inorder(root.children[0])
+
+    result.append(root)
+
+    for i in range(1, len(root.children)):
+        result = result + traverse_tree_inorder(root.children[i])
+
+    return result
+
+
+def traverse_tree_preorder(root: Tree | None):
+    result = [root]
+
+    for child in root.children:
+        result = result + traverse_tree_preorder(child)
+
+    return result
+
+
+def traverse_tree_postorder(root: Tree | None):
+    result = []
+
+    for child in root.children:
+        result = result + traverse_tree_postorder(child)
+
+    result.append(root)
+
+    return result
+
+
+def print_tree():
+    print("Enter folder name: ")
+    name = input()
+    node = search_folder(name)
+    if node is not None:
+        print("Preorder: ", to_string_tree_traversal(traverse_tree_preorder(node)))
+        print("Postorder: ", to_string_tree_traversal(traverse_tree_postorder(node)))
+        print("Inorder: ", to_string_tree_traversal(traverse_tree_inorder(node)))
+    else:
+        print("Folder not found!")
+
+
+def to_string_tree_traversal(path_list):
+    final_str = ""
+    for i, item in enumerate(path_list):
+        final_str = final_str + (" * " if i > 0 else "") + str(item.data)
+    return final_str
+
+
 if __name__ == '__main__':
-    unzip()
-    root_dir = "D:/programs/Github/ds-project-olympians-ii/Main"
-    year_dict = defaultdict(list)
-    find_dirs(root_dir, year_dict)
-    date_order(year_dict)
-    type_order(year_dict)
+    # unzip()
+    # root_dir = "D:/programs/Github/ds-project-olympians-ii/Main"
+    # year_dict = defaultdict(list)
+    # find_dirs(root_dir, year_dict)
+    # date_order(year_dict)
+    # type_order(year_dict)
     # folder_creator(year_dict, root_dir)
     # file_deleter()
     # file_adder()
     # redo()
     # undo()
+    tree_maker()
+    print_tree()
